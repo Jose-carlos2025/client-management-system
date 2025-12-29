@@ -7,20 +7,41 @@ __pycache__/
 env/
 venv/
 .env
+*.pyc
+.pytest_cache/
 
-# Banco de dados
-*.db
-*.sqlite3
+# Banco de dados (NÃO IGNORE clientes.db se quiser dados de exemplo)
+# *.db
+# *.sqlite3
+
+# Backups e arquivos temporários
+*_backup*
+*_old*
+*.bak
+*.tmp
+*.temp
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-*
 
 # Sistema
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Logs
 *.log
+logs/
+
+# Arquivos grandes
+*.zip
+*.rar
+*.tar.gz
+
+# Configurações específicas do projeto
+config.py
+secrets.py
