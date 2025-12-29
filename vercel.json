@@ -1,0 +1,25 @@
+﻿{
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.py",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      }
+    }
+  ],
+  "env": {
+    "PYTHONUTF8": "1",
+    "LC_ALL": "pt_BR.UTF-8",
+    "LANG": "pt_BR.UTF-8"
+  }
+}

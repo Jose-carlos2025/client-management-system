@@ -1,0 +1,12 @@
+﻿# Ignorar no Vercel
+__pycache__/
+*.pyc
+venv/
+env/
+*.db
+*.log
+.git/
+.github/
+.idea/
+.vscode/
+.DS_Store
