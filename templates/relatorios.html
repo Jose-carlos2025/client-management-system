@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block title %}Relatórios - Sistema Clientes{% endblock %}
+
+{% block extra_css %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-bar-chart"></i> Relatórios</h1>
+    <div>
+        <a href="{{ url_for('export_csv') }}" class="btn btn-success">
+            <i class="bi bi-file-earmark-excel"></i> Exportar CSV
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Gráfico de Cadastros por Mês -->
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-calendar"></i> Cadastros por Mês</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="chartCadastros" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Estatísticas Rápidas -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Estatísticas</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for cidade in clientes_cidade[:5] %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ cidade.cidade or 'Não informado' }}
+                        <span class="badge bg-primary rounded-pill">{{ cidade.total }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Clientes por Cidade -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-geo-alt"></i> Clientes por Cidade (Top 10)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Cidade</th>
+                                <th>Clientes</th>
+                                <th>Percentual</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set total_cidades = clientes_cidade|sum(attribute='total') %}
+                            {% for cidade in clientes_cidade[:10] %}
+                            <tr>
+                                <td>{{ cidade.cidade or 'Não informado' }}</td>
+                                <td>{{ cidade.total }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ (cidade.total / total_cidades * 100) if total_cidades > 0 else 0 }}%">
+                                            {{ "%.1f"|format(cidade.total / total_cidades * 100) if total_cidades > 0 else 0 }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Clientes por Estado -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-map"></i> Clientes por Estado</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Estado</th>
+                                <th>Clientes</th>
+                                <th>Percentual</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set total_estados = clientes_estado|sum(attribute='total') %}
+                            {% for estado in clientes_estado %}
+                            <tr>
+                                <td>{{ estado.estado or 'Não informado' }}</td>
+                                <td>{{ estado.total }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-success" role="progressbar" 
+                                             style="width: {{ (estado.total / total_estados * 100) if total_estados > 0 else 0 }}%">
+                                            {{ "%.1f"|format(estado.total / total_estados * 100) if total_estados > 0 else 0 }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Gráfico de cadastros por mês
+const ctx = document.getElementById('chartCadastros').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ meses|safe }},
+        datasets: [{
+            label: 'Clientes Cadastrados',
+            data: {{ totals|safe }},
+            borderColor: '#4e73df',
+            backgroundColor: 'rgba(78, 115, 223, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Evolução de Cadastros (Últimos 6 Meses)'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Atualizar gráfico com dados da API
+fetch('/api/estatisticas')
+    .then(response => response.json())
+    .then(data => {
+        if (data.length > 0) {
+            // Atualizar gráfico com dados da API
+            console.log('Dados da API:', data);
+        }
+    });
+</script>
+{% endblock %}

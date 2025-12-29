@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if cliente else 'Adicionar' }} Cliente{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-person-plus"></i> 
+                    {{ 'Editar' if cliente else 'Adicionar' }} Cliente
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nome" class="form-label">Nome Completo *</label>
+                            <input type="text" class="form-control" id="nome" name="nome" 
+                                   value="{{ cliente.nome if cliente }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   value="{{ cliente.email if cliente }}">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="telefone" class="form-label">Telefone</label>
+                            <input type="text" class="form-control" id="telefone" name="telefone" 
+                                   value="{{ cliente.telefone if cliente }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="cpf" class="form-label">CPF</label>
+                            <input type="text" class="form-control" id="cpf" name="cpf" 
+                                   value="{{ cliente.cpf if cliente }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                            <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" 
+                                   value="{{ cliente.data_nascimento if cliente }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input type="text" class="form-control" id="endereco" name="endereco" 
+                               value="{{ cliente.endereco if cliente }}">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="cidade" class="form-label">Cidade</label>
+                            <input type="text" class="form-control" id="cidade" name="cidade" 
+                                   value="{{ cliente.cidade if cliente }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="estado" class="form-label">Estado</label>
+                            <select class="form-select" id="estado" name="estado">
+                                <option value="">Selecione...</option>
+                                {% for uf in ['AC','AL','AP','AM','BA','CE','DF','ES','GO',
+                                              'MA','MT','MS','MG','PA','PB','PR','PE','PI',
+                                              'RJ','RN','RS','RO','RR','SC','SP','SE','TO'] %}
+                                    <option value="{{ uf }}" 
+                                        {% if cliente and cliente.estado == uf %}selected{% endif %}>
+                                        {{ uf }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="profissao" class="form-label">Profissão</label>
+                            <input type="text" class="form-control" id="profissao" name="profissao" 
+                                   value="{{ cliente.profissao if cliente }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="empresa" class="form-label">Empresa</label>
+                            <input type="text" class="form-control" id="empresa" name="empresa" 
+                                   value="{{ cliente.empresa if cliente }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="observacoes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="observacoes" name="observacoes" 
+                                  rows="3">{{ cliente.observacoes if cliente }}</textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('home') }}" class="btn btn-secondary me-md-2">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> 
+                            {{ 'Atualizar' if cliente else 'Salvar' }} Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Máscara para telefone
+document.getElementById('telefone')?.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 10) {
+        value = value.replace(/^(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    } else if (value.length > 6) {
+        value = value.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+    } else if (value.length > 2) {
+        value = value.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+    }
+    e.target.value = value;
+});
+
+// Máscara para CPF
+document.getElementById('cpf')?.addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 9) {
+        value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    } else if (value.length > 6) {
+        value = value.replace(/^(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
+    } else if (value.length > 3) {
+        value = value.replace(/^(\d{3})(\d{0,3})/, '$1.$2');
+    }
+    e.target.value = value;
+});
+</script>
+{% endblock %}
