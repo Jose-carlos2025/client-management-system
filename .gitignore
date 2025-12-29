@@ -45,3 +45,7 @@ logs/
 # Configurações específicas do projeto
 config.py
 secrets.py
+
+*.db
+*.sqlite3
+
